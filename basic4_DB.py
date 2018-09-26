@@ -39,7 +39,7 @@ def index():
     first_product = Product.query.first()
     product_schema = ProductSchema()
     out = product_schema.dump(first_product).data
-    return jsonify({'Product': out})
+    return jsonify({'Product ID': out})
 
 
 if __name__ == "__main__":
