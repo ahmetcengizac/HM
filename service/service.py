@@ -3,6 +3,7 @@ from flask import request
 from util.authorization import auth_required
 from util.static import app
 from data.model import Article, ArticleSchema
+from data import dboperation
 
 
 @app.route( '/<int:pid>', methods=['GET'] )
@@ -21,13 +22,12 @@ def insert():
         data = request.get_json()
         new_article = Article( title=data['title']
                                , body=data['body']
-                               , site=data['site'] )
-
-
-
+                               , site=data['site']
+                               , author_id=data['author'])
+        rtn=dboperation.insert(new_article)
     except KeyError:
         return jsonify( {'Error': "Json key error"} )
-    return jsonify( {'you sent': a} )
+    return jsonify( {'Inserted id ': rtn} )
 
 
 @app.route( '/update', methods=['POST'] )

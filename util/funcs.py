@@ -1,4 +1,6 @@
 import re
+
+from idna import unicode
 from unidecode import unidecode
 
 _punct_re = re.compile( r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+' )
