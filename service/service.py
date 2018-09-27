@@ -1,16 +1,45 @@
 from flask import jsonify
+from flask import request
 from util.authorization import auth_required
 from util.static import app
-from data.datamodel import Product, ProductSchema
+from data.model import Article, ArticleSchema
 
 
-@app.route( '/' )
+@app.route( '/<int:pid>', methods=['GET'] )
 @auth_required
-def index():
-    first_product = Product.query.first()
-    product_schema = ProductSchema()
+def index(pid):
+    first_product = Article.query.filter_by( id=pid ).first()
+    product_schema = ArticleSchema()
     out = product_schema.dump( first_product ).data
-    return jsonify( {'Product': out} )
+    return jsonify( {'Article': out} )
+
+
+@app.route( '/insert', methods=['POST'] )
+@auth_required
+def insert():
+    try:
+        data = request.get_json()
+        new_article = Article( title=data['title']
+                               , body=data['body']
+                               , site=data['site'] )
+
+
+
+    except KeyError:
+        return jsonify( {'Error': "Json key error"} )
+    return jsonify( {'you sent': a} )
+
+
+@app.route( '/update', methods=['POST'] )
+@auth_required
+def update():
+    return "2"
+
+
+@app.route( '/upload', methods=['POST'] )
+def upload():
+    file = request.files['inputFile']
+    return file
 
 
 if __name__ == "__main__":
