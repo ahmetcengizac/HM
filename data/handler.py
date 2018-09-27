@@ -9,8 +9,3 @@ db = SQLAlchemy( app )
 ma = Marshmallow( app )
 
 
-class DBHandler(db.Model):
-    def insert(self):
-        db.session.add( self )
-        db.session.commit()
-
