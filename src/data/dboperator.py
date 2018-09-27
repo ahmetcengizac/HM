@@ -1,5 +1,5 @@
 import sqlalchemy
-from src.util.static import app
+from src.util.init import app
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -22,16 +22,17 @@ def update():
 
 
 def delete(model, pid):
-    rec = get( model, pid )
+    rec = getrow( model, pid )
     if rec is not None:
         db.session.delete( rec )
         db.session.commit()
         result = pid
     else:
-        result=0
+        result = 0
     return result
 
 
-def get(model, pid):
+def getrow(model, pid):
     row = model.query.get( pid )
     return row
+

@@ -25,16 +25,22 @@ def test_update():
             "author": 2
             }
 
-    api_url = 'http://127.0.0.1:5000/update/2'
+    api_url = 'http://127.0.0.1:5000/update/10'
     data_json = json.dumps( data )
     r = requests.put( url=api_url, auth=credentail, data=data_json, headers=headers )
 
     print( r.status_code, r.reason, r.text )
 
 def test_delete():
-    api_url = 'http://127.0.0.1:5000/delete/24'
+    api_url = 'http://127.0.0.1:5000/delete/26'
     r = requests.post( url=api_url, auth=credentail)
 
     print( r.status_code, r.reason, r.text )
 
-test_delete()
+def test_get():
+    api_url = 'http://127.0.0.1:5000/5'
+    r = requests.get( url=api_url, auth=credentail)
+
+    print( r.status_code, r.reason, r.text )
+
+test_update()

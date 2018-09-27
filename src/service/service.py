@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask import request
 from src.util.authorization import auth_required
-from src.util.static import app
+from src.util.init import app
 from src.data.model import Article, ArticleSchema
 from src.data import dboperator
 from src.data.dboperator import DatabaseError
@@ -10,10 +10,12 @@ from src.data.dboperator import DatabaseError
 @app.route( '/<int:pid>', methods=['GET'] )
 @auth_required
 def index(pid):
-    first_product = Article.query.filter_by( id=pid ).first()
-    product_schema = ArticleSchema()
-    out = product_schema.dump( first_product ).data
-    return jsonify( {'Article': out} )
+    row = dboperator.getrow( Article, pid )
+    if row is not None:
+        article_schema = ArticleSchema()
+        return jsonify( article_schema.dump( row ).data )
+    else:
+        return jsonify( {'Error': "Record not found"} )
 
 
 @app.route( '/insert', methods=['POST'] )
@@ -40,14 +42,16 @@ def update(pid):
     try:
         data = request.get_json()
 
-        upd_article = dboperator.get( Article, pid )
-        upd_article.title = data['title']
-        upd_article.body = data['body']
-        upd_article.site = data['site']
-        upd_article.author_id = data['author']
-        upd_article.isupdate = 1
-
-        dboperator.update()
+        upd_article = dboperator.getrow( Article, pid )
+        if upd_article is not None:
+            upd_article.title = data['title']
+            upd_article.body = data['body']
+            upd_article.site = data['site']
+            upd_article.author_id = data['author']
+            upd_article.isupdate = 1
+            dboperator.update()
+        else:
+            return jsonify( {'Error': "Record not found"} )
     except KeyError:
         return jsonify( {'Error': "Json key error"} )
     except TypeError:
