@@ -9,3 +9,17 @@ db = SQLAlchemy( app )
 ma = Marshmallow( app )
 
 
+def insert(self):
+    db.session.add( self )
+    db.session.commit()
+
+def update(self):
+    db.session.add( self )
+    db.session.commit()
+
+def delete(self,**pid):
+    rec = self.query.get(pid)
+    db.session.delete(rec)
+    db.session.commit()
+
+
