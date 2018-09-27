@@ -1,4 +1,4 @@
-from data.handler import db, ma
+from data.dboperator import db, ma
 from util.funcs import slugify
 
 class Author( db.Model ):
