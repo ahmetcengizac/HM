@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from idna import unicode
 from unidecode import unidecode
@@ -12,3 +13,6 @@ def slugify(text, delim=u'-'):
     for word in _punct_re.split( text.lower() ):
         result.extend( unidecode( word ).split() )
     return unicode( delim.join( result ) )
+
+def now():
+    return datetime.now()

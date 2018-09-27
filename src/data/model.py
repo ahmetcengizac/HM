@@ -1,5 +1,6 @@
-from data.dboperator import db, ma
-from util.funcs import slugify
+from src.data.dboperator import db, ma
+from src.util.funcs import slugify, now
+
 
 class Author( db.Model ):
     id = db.Column( db.Integer, primary_key=True )
@@ -7,6 +8,7 @@ class Author( db.Model ):
 
 
 class Article( db.Model ):
+    _isupdate = 0
     id = db.Column( db.Integer, primary_key=True )
     title = db.Column( db.String( 50 ), nullable=False )
     body = db.Column( db.String( 200 ), nullable=False )
@@ -21,7 +23,21 @@ class Article( db.Model ):
     def __init__(self, *args, **kwargs):
         if not 'slug' in kwargs:
             kwargs['slug'] = slugify( kwargs.get( 'title', '' ) )
+        if not 'updated' in kwargs:
+            kwargs['updated'] = now()
+        if not 'created' in kwargs:
+            kwargs['created'] = now()
         super().__init__( *args, **kwargs )
+
+    @property
+    def isupdate(self):
+        return self._isupdate
+
+    @isupdate.setter
+    def isupdate(self, v):
+        self.slug = slugify( self.title )
+        self.updated = now()
+        self._isupdate = v
 
 
 class ArticleSchema( ma.ModelSchema ):
@@ -32,5 +48,3 @@ class ArticleSchema( ma.ModelSchema ):
 class AuthorSchema( ma.ModelSchema ):
     class Meta:
         model = Author
-
-
