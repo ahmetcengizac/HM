@@ -1,10 +1,14 @@
-from flask import jsonify
+from flask import jsonify, send_file, make_response
 from flask import request
 from src.util.authorization import auth_required
-from src.util.init import app
+from init import app, IMAGE_ROOT
 from src.data.model import Article, ArticleSchema
 from src.data import dboperator
 from src.data.dboperator import DatabaseError
+from src.util.funcs import crop_image1x1, crop_image2x1, crop_image4x3, crop_image16x9
+
+
+# Service layer
 
 
 @app.route( '/<int:pid>', methods=['GET'] )
@@ -41,7 +45,6 @@ def insert():
 def update(pid):
     try:
         data = request.get_json()
-
         upd_article = dboperator.getrow( Article, pid )
         if upd_article is not None:
             upd_article.title = data['title']
@@ -73,11 +76,63 @@ def delete(pid):
     return jsonify( {'Deleted id ': del_result} if del_result > 0 else {'Error': "Record not found"} )
 
 
-@app.route( '/upload', methods=['POST'] )
-def upload():
-    file = request.files['inputFile']
-    return file
+@app.route( '/upload/<int:pid>', methods=['POST'] )
+def upload(pid):
+    try:
+        file = request.files['image']
+        article = dboperator.getrow( Article, pid )
+        if article is not None:
+            destination = "\\".join( [IMAGE_ROOT, str( article.id ) + '.jpg'] )
+            print( destination )
+            file.save( destination )
+        else:
+            return jsonify( {'Error': "Record not found"} )
+    except (FileExistsError, FileNotFoundError) as e:
+        return jsonify( {'Error': "file error",
+                         'Description': str( e )} )
+    return jsonify( {'upload id ': pid} )
+
+
+@app.route( '/download/<int:pid>', methods=['GET'] )
+def download(pid):
+    try:
+        article = dboperator.getrow( Article, pid )
+        if article is not None:
+            source = "\\".join( [IMAGE_ROOT, str( article.id ) + '.jpg'] )
+            return send_file( source, mimetype='image/jpeg' )  # response
+        else:
+            return jsonify( {'Error': "Record not found"} )
+    except DatabaseError as e:
+        return jsonify( {'Error': "database error",
+                         'Description': str( e )} )
+
+
+# 1x1, 2x1, 4x3, 16x9
+
+@app.route( '/download/<int:pid>/<crop>', methods=['GET'] )
+def download_crop(pid, crop):
+    try:
+        article = dboperator.getrow( Article, pid )
+        if article is not None:
+            source = "\\".join( [IMAGE_ROOT, str( article.id ) + '.jpg'] )
+            cropfile = "\\".join( [IMAGE_ROOT, str( article.id ) + '_' + crop + '.jpg'] )
+            if crop == '1x1':
+                crop_image1x1( source, cropfile )
+            elif crop == '2x1':
+                crop_image2x1( source, cropfile )
+            elif crop == '4x3':
+                crop_image4x3( source, cropfile )
+            elif crop == '16x9':
+                crop_image16x9( source, cropfile )
+
+            return send_file( cropfile, mimetype='image/jpeg' )  # response
+        else:
+            return jsonify( {'Error': "Record not found"} )
+    except DatabaseError as e:
+        return jsonify( {'Error': "database error",
+                         'Description': str( e )} )
 
 
 if __name__ == "__main__":
+    print( {'Image Root': IMAGE_ROOT} )
     app.run( debug=True )

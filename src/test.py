@@ -4,11 +4,12 @@ import requests
 headers = {'Content-type': 'application/json'}
 credentail = ("userN", "passW")
 
+
 def test_insert():
-    data = {"title": "Heart of Midlothian 213123",
-            "body": "this is large body area 12312",
-            "site": "www.kt.com",
-            "author": 2
+    data = {"title": "Heart of Midlothian",
+            "body": "this is large body area",
+            "site": "www.kts.com",
+            "author": "1"
             }
 
     api_url = 'http://127.0.0.1:5000/insert'
@@ -31,16 +32,48 @@ def test_update():
 
     print( r.status_code, r.reason, r.text )
 
+
 def test_delete():
     api_url = 'http://127.0.0.1:5000/delete/26'
-    r = requests.post( url=api_url, auth=credentail)
+    r = requests.post( url=api_url, auth=credentail )
 
     print( r.status_code, r.reason, r.text )
 
-def test_get():
+
+def test_read():
     api_url = 'http://127.0.0.1:5000/5'
-    r = requests.get( url=api_url, auth=credentail)
+    r = requests.get( url=api_url, auth=credentail )
 
     print( r.status_code, r.reason, r.text )
 
-test_update()
+
+def test_upload():
+    files = {'image': ('inputFile', open( 'C:\\Users\\ahmetc\\Pictures\\cde.jpg', 'rb' ))}
+
+    api_url = 'http://127.0.0.1:5000/upload/1'
+    r = requests.post( url=api_url, auth=credentail, files=files )
+
+    print( r.status_code, r.reason, r.text )
+
+
+def test_download():
+    api_url = 'http://127.0.0.1:5000/download/1'
+    r = requests.get( url=api_url, auth=credentail ,allow_redirects=True)
+    open( '1.jpg', 'wb' ).write( r.content )
+
+
+def test_download_crop():
+    api_url = 'http://127.0.0.1:5000/download/3/2x1'
+    r = requests.get( url=api_url, auth=credentail ,allow_redirects=True)
+    open( '3_1.jpg', 'wb' ).write( r.content )
+
+
+
+
+#test_insert()
+#test_update()
+#test_read()
+#test_delete()
+#test_upload()
+#test_download()
+test_download_crop()

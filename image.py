@@ -1,7 +1,8 @@
-from src.data.dboperator import db, ma
+
+
+from src.data.dboperator import db, ma, storage, StdImageField
 from src.util.funcs import slugify, now
 
-#Mapping with database and Author, Article entities in this module
 
 class Author( db.Model ):
     id = db.Column( db.Integer, primary_key=True )
@@ -17,11 +18,18 @@ class Article( db.Model ):
     slug = db.Column( db.String( 255 ), nullable=False )
     author_id = db.Column( db.Integer, db.ForeignKey( 'author.id' ) )
     author = db.relationship( 'Author', backref='rewards' )
+    image = db.Column(
+        StdImageField(
+            storage=storage,
+            variations={
+                'thumbnail': {"width": 100, "height": 100, "crop": True}
+            }
+        ), nullable=True
+    )
 
     created = db.Column( db.DateTime )
     updated = db.Column( db.DateTime )
 
-#Set values to "slug", "created" and "updated" fields
     def __init__(self, *args, **kwargs):
         if not 'slug' in kwargs:
             kwargs['slug'] = slugify( kwargs.get( 'title', '' ) )
@@ -35,7 +43,6 @@ class Article( db.Model ):
     def isupdate(self):
         return self._isupdate
 
-#When the updating process, the "slug" and "updated" fileds are set with new values.
     @isupdate.setter
     def isupdate(self, v):
         self.slug = slugify( self.title )
@@ -46,8 +53,3 @@ class Article( db.Model ):
 class ArticleSchema( ma.ModelSchema ):
     class Meta:
         model = Article
-
-
-class AuthorSchema( ma.ModelSchema ):
-    class Meta:
-        model = Author

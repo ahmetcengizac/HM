@@ -1,7 +1,6 @@
 from flask import request, make_response
 from functools import wraps
 
-
 # A sample username and password was applied because it was a case study. Authorized users can be stored in database.
 
 def auth_required(f):
