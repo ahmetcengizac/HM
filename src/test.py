@@ -4,15 +4,24 @@ import requests
 headers = {'Content-type': 'application/json'}
 credentail = ("userN", "passW")
 
+def test_create_author():
+    data = {"name": "Hearts"
+            }
 
-def test_insert():
+    api_url = 'http://127.0.0.1:5000/create_author'
+    data_json = json.dumps( data )
+    r = requests.post( url=api_url, auth=credentail, data=data_json, headers=headers )
+
+    print( r.status_code, r.reason, r.text )
+
+def test_create():
     data = {"title": "Heart of Midlothian",
             "body": "this is large body area",
             "site": "www.kts.com",
             "author": "1"
             }
 
-    api_url = 'http://127.0.0.1:5000/insert'
+    api_url = 'http://127.0.0.1:5000/create'
     data_json = json.dumps( data )
     r = requests.post( url=api_url, auth=credentail, data=data_json, headers=headers )
 
@@ -63,17 +72,20 @@ def test_download():
 
 
 def test_download_crop():
-    api_url = 'http://127.0.0.1:5000/download/3/2x1'
+    api_url = 'http://127.0.0.1:5000/download/3/16x9'
     r = requests.get( url=api_url, auth=credentail ,allow_redirects=True)
     open( '3_1.jpg', 'wb' ).write( r.content )
 
 
+#####  for Author
+# test_create_author()
 
-
-#test_insert()
-#test_update()
+##### for Article
+#test_create()
 #test_read()
+#test_update()
 #test_delete()
+
 #test_upload()
 #test_download()
-test_download_crop()
+#test_download_crop()

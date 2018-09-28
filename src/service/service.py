@@ -1,8 +1,8 @@
-from flask import jsonify, send_file, make_response
+from flask import jsonify, send_file
 from flask import request
 from src.util.authorization import auth_required
 from init import app, IMAGE_ROOT
-from src.data.model import Article, ArticleSchema
+from src.data.model import Article, ArticleSchema, Author
 from src.data import dboperator
 from src.data.dboperator import DatabaseError
 from src.util.funcs import crop_image1x1, crop_image2x1, crop_image4x3, crop_image16x9
@@ -22,9 +22,24 @@ def index(pid):
         return jsonify( {'Error': "Record not found"} )
 
 
-@app.route( '/insert', methods=['POST'] )
+@app.route( '/create_author', methods=['POST'] )
 @auth_required
-def insert():
+def create_author():
+    try:
+        data = request.get_json()
+        new_author = Author( name=data['name'] )
+        rtn = dboperator.insert( new_author )
+    except KeyError:
+        return jsonify( {'Error': "Json key error"} )
+    except DatabaseError as e:
+        return jsonify( {'Error': "database error",
+                         'Description': str( e )} )
+    return jsonify( {'Inserted id ': rtn} )
+
+
+@app.route( '/create', methods=['POST'] )
+@auth_required
+def create():
     try:
         data = request.get_json()
         new_article = Article( title=data['title']
